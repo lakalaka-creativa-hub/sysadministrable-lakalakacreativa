@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instalador - Nuevo Negocio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="rail">
+        <div class="logo">INSTALADOR</div>
+        <div class="steps">
+          <div class="step active" data-step="1">1. Correo</div>
+          <div class="step" data-step="2">2. Supabase</div>
+          <div class="step" data-step="3">3. Conexion</div>
+          <div class="step" data-step="4">4. Schema</div>
+          <div class="step" data-step="5">5. RLS</div>
+          <div class="step" data-step="6">6. Claves</div>
+          <div class="step" data-step="7">7. Vercel</div>
+          <div class="step" data-step="8">8. Final</div>
+        </div>
+        <div class="hint">Solo genera .env.local. No sube datos.</div>
+        <div class="rail-footer">
+          <button class="btn secondary small" data-action="reset">Reiniciar instalador</button>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <section class="screen active" data-screen="1">
+          <h1>Ya tienes el correo?</h1>
+          <p>Usa un correo exclusivo para este negocio. No uses el de otro cliente.</p>
+          <div class="form">
+            <label>
+              <span>NOMBRE DEL NEGOCIO</span>
+              <input id="business-name" type="text" placeholder="Ej. La Kalaka Creativa" />
+            </label>
+          </div>
+          <p>Este nombre es solo para guiarte en las siguientes pantallas.</p>
+          <div class="actions">
+            <button class="btn secondary" data-action="email-no">No, voy a crear</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="next">Si, continuar</button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="2">
+          <h1>Ya creaste Supabase?</h1>
+          <p>Debes tener un proyecto nuevo para <strong><span data-business="name">este negocio</span></strong>.</p>
+          <p>Si usas un proyecto de otro cliente, la app no va a funcionar bien.</p>
+          <div class="steps-block">
+            <h2>Como crear el proyecto</h2>
+            <ol>
+              <li>Entra a supabase.com y crea una cuenta (si no tienes).</li>
+              <li>Haz clic en "New project".</li>
+              <li>Selecciona la organizacion.</li>
+              <li>Asigna un nombre y password de la base.</li>
+              <li>Elige la region mas cercana al cliente.</li>
+              <li>Espera a que termine de crear el proyecto.</li>
+            </ol>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="sb-no">No, voy a crear</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="next">Si, continuar</button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="3">
+          <h1>Conexion a la base</h1>
+          <p>Copia el connection string (Postgres) de Supabase y agrega la contrasena.</p>
+          <p>Si aparece el error <strong>ENOTFOUND</strong> o tu red es solo IPv4, usa el metodo <strong>Session Pooler</strong> en Supabase.</p>
+          <div class="form">
+            <label>
+              <span>CONNECTION STRING</span>
+              <input id="sb-conn" type="text" placeholder="postgresql://postgres:[YOUR-PASSWORD]@db.xxxx.supabase.co:5432/postgres" />
+            </label>
+            <label>
+              <span>CONTRASENA DB</span>
+              <input id="sb-pass" type="password" placeholder="Tu password" />
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="prev">Regresar</button>
+            <button class="btn secondary" data-action="open-conn">Abrir Supabase</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="next">Continuar</button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="4">
+          <h1>Schema (public)</h1>
+          <p>Este SQL se ejecuta manualmente en Supabase (SQL Editor). Copia y pega tal cual.</p>
+          <div class="form">
+            <label>
+              <span>SCHEMA SQL</span>
+              <textarea id="sb-schema" rows="10" placeholder="create table public..." readonly></textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="prev">Regresar</button>
+            <button class="btn secondary" data-action="open-sql">Abrir SQL Editor</button>
+            <button class="btn secondary" data-action="load-schema">Recargar SQL</button>
+            <button class="btn primary" data-action="copy-schema">Copiar SQL</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+          </div>
+          <div class="notice" id="schema-status"></div>
+        </section>
+
+        <section class="screen" data-screen="5">
+          <h1>RLS y politicas</h1>
+          <p>Ejecuta este SQL en el SQL Editor para activar RLS. Copia y pega tal cual.</p>
+          <div class="form">
+            <label>
+              <span>RLS SQL</span>
+              <textarea id="sb-rls" rows="10" placeholder="alter table public..." readonly></textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="prev">Regresar</button>
+            <button class="btn secondary" data-action="open-sql">Abrir SQL Editor</button>
+            <button class="btn secondary" data-action="load-rls">Recargar SQL</button>
+            <button class="btn primary" data-action="copy-rls">Copiar SQL</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+          </div>
+          <div class="notice" id="rls-status"></div>
+        </section>
+
+        <section class="screen" data-screen="6">
+          <h1>Ingresa las claves</h1>
+          <p>Copialas desde el panel de Supabase del negocio correcto.</p>
+          <p>Si pones claves de otro negocio, el sistema no va a entrar.</p>
+          <div class="form">
+            <label>
+              <span>SUPABASE URL</span>
+              <input id="sb-url" type="text" placeholder="https://xxxx.supabase.co" />
+            </label>
+            <label>
+              <span>ANON KEY</span>
+              <textarea id="sb-anon" rows="3" placeholder="eyJhbGciOi..." ></textarea>
+            </label>
+            <label>
+              <span>SERVICE ROLE KEY</span>
+              <textarea id="sb-service" rows="3" placeholder="eyJhbGciOi..." ></textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="prev">Regresar</button>
+            <button class="btn secondary" data-action="open-keys">Abrir API Keys</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="save">Guardar .env.local</button>
+          </div>
+          <div class="notice" id="save-status"></div>
+        </section>
+
+        <section class="screen" data-screen="7">
+          <h1>Vercel</h1>
+          <p>Vamos paso a paso. Aqui subimos el proyecto a GitHub y luego lo conectamos a Vercel.</p>
+          <p>Usa las cuentas de GitHub y Vercel del negocio correcto.</p>
+
+          <div class="steps-block">
+            <h2>0) Preparar GitHub</h2>
+            <ol>
+              <li>Entra a github.com e inicia sesion.</li>
+              <li>Arriba a la derecha, boton +, elige "New repository".</li>
+              <li>Escribe un nombre y crea el repositorio.</li>
+              <li>No marques "Add a README".</li>
+            </ol>
+            <div class="actions">
+              <button class="btn secondary" data-action="open-github-new">Abrir GitHub</button>
+            </div>
+          </div>
+
+          <div class="steps-block">
+            <h2>1) Subir el proyecto (automático)</h2>
+            <p>La app puede hacer el push por ti. Solo llena los datos.</p>
+            <div class="form">
+              <label>
+                <span>USUARIO DE GITHUB</span>
+                <input id="git-owner" type="text" placeholder="tu-usuario" />
+              </label>
+              <label>
+                <span>NOMBRE DEL REPO</span>
+                <input id="git-repo" type="text" placeholder="nombre-del-repo" />
+              </label>
+              <label>
+                <span>TOKEN (PAT) DE GITHUB</span>
+                <input id="git-token" type="password" placeholder="ghp_..." />
+              </label>
+            </div>
+            <div class="actions">
+              <button class="btn secondary" data-action="open-github-token">Crear token</button>
+              <button class="btn primary" data-action="git-push">Subir a GitHub</button>
+              <button class="btn secondary" data-action="git-clean">Limpiar Git y reintentar</button>
+            </div>
+            <div class="notice" id="git-status"></div>
+          </div>
+
+          <div class="steps-block">
+            <h2>2) Subir el proyecto (manual)</h2>
+            <ol>
+              <li>Abre PowerShell en tu computadora.</li>
+              <li>Entra a la carpeta del proyecto.</li>
+              <li>Ejecuta estos comandos (reemplaza TU_USUARIO y TU_REPO):</li>
+            </ol>
+            <pre class="code">cd "C:\\Users\\PREVENCION INTERNA\\Desktop\\SYSAdministrable-admin"
+git init
+git add .
+git commit -m "primer commit"
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+git push -u origin main</pre>
+            <p>Si te da error por archivos grandes, borra node_modules del repo y vuelve a intentar.</p>
+          </div>
+
+          <div class="steps-block">
+            <h2>3) Conectar el repo en Vercel</h2>
+            <ol>
+              <li>Entra a vercel.com y crea un nuevo proyecto.</li>
+              <li>Elige tu repositorio de GitHub y pulsa Import.</li>
+            </ol>
+          </div>
+
+          <div class="steps-block">
+            <h2>4) Agregar variables de entorno</h2>
+            <p>Las variables son solo campos de texto que Vercel guarda para tu app.</p>
+            <ol>
+              <li>Agrega: NEXT_PUBLIC_SUPABASE_URL</li>
+              <li>Agrega: NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
+              <li>Estas dos salen de Supabase en Project Settings → API.</li>
+            </ol>
+          </div>
+
+          <div class="steps-block">
+            <h2>5) Desplegar</h2>
+            <ol>
+              <li>Da clic en Deploy y espera a que termine.</li>
+              <li>Abre la URL que te da Vercel.</li>
+            </ol>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" data-action="prev">Regresar</button>
+            <button class="btn secondary" data-action="open-vercel">Abrir Vercel</button>
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="next">Ya termine</button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="8">
+          <h1>Listo</h1>
+          <p>Instalacion completada.</p>
+          <div class="actions">
+            <button class="btn secondary" data-action="exit">Cerrar</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

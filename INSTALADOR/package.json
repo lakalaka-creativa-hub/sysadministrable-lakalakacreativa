@@ -1,0 +1,15 @@
+{
+  "name": "instalador",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0"
+  }
+}
