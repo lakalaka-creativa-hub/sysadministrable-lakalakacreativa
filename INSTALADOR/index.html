@@ -100,6 +100,38 @@
               <li>Espera a que termine de crear el proyecto.</li>
             </ol>
           </div>
+          <div class="steps-block">
+            <h2>Storage para el logo</h2>
+            <ol>
+              <li>Ve a Storage → New bucket.</li>
+              <li>Nombre del bucket: <strong>branding</strong>.</li>
+              <li>Marca el bucket como <strong>Public</strong>.</li>
+            </ol>
+            <p class="helper">Si no creas el bucket, el logo no se puede subir.</p>
+            <p class="helper">Si aun falla el upload, crea estas policies en SQL Editor:</p>
+            <pre class="code">create policy "branding_upload_authenticated"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'branding');
+
+create policy "branding_read_public"
+on storage.objects
+for select
+to public
+using (bucket_id = 'branding');
+
+create policy "branding_update_authenticated"
+on storage.objects
+for update
+to authenticated
+using (bucket_id = 'branding')
+with check (bucket_id = 'branding');</pre>
+          </div>
+          <div class="steps-block">
+            <h2>Ajustes de agenda</h2>
+            <p class="helper">Si ves aviso de agenda, es normal: se crea al guardar ajustes en la agenda.</p>
+          </div>
           <div class="actions">
             <button class="btn secondary" data-action="sb-no">No, voy a crear</button>
             <button class="btn secondary" data-action="next">Saltar</button>

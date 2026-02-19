@@ -5,19 +5,25 @@ const SUPABASE_URL = Deno.env.get("SB_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SB_ANON_KEY") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SB_SERVICE_ROLE_KEY") ?? "";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 const jsonResponse = (status: number, payload: Record<string, unknown>) =>
   new Response(JSON.stringify(payload), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform",
+      ...corsHeaders,
     },
   });
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return jsonResponse(200, { ok: true });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
