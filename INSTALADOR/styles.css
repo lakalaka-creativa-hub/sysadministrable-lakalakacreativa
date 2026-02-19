@@ -129,6 +129,13 @@ label span {
   font-size: 13px;
 }
 
+.helper {
+  margin: -6px 0 0;
+  color: #a7a7b0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 input,
 textarea {
   width: 100%;
