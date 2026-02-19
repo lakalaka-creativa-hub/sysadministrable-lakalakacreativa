@@ -9,4 +9,7 @@ contextBridge.exposeInMainWorld("installer", {
   showInfo: (message) => ipcRenderer.invoke("show-info", message),
   gitPush: (data) => ipcRenderer.invoke("git-push", data),
   gitClean: () => ipcRenderer.invoke("git-clean"),
+  checkDeps: () => ipcRenderer.invoke("check-deps"),
+  installDep: (name) => ipcRenderer.invoke("install-dep", name),
+  getProjectPath: () => ipcRenderer.invoke("get-project-path"),
 });

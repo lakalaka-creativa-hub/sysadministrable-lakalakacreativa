@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { Client } = require("pg");
 const { execFileSync } = require("child_process");
+const { spawn } = require("child_process");
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -47,6 +48,48 @@ const runGit = (args, options = {}) => {
     const stdout = err?.stdout ? String(err.stdout) : "";
     const stderr = err?.stderr ? String(err.stderr) : err?.message || "";
     return { ok: false, stdout, stderr };
+  }
+};
+
+const runCommand = (command, args, options = {}) => {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, {
+      cwd: options.cwd,
+      env: { ...process.env, ...(options.env || {}) },
+      shell: false,
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    if (child.stdout) {
+      child.stdout.on("data", (data) => {
+        stdout += data.toString();
+      });
+    }
+
+    if (child.stderr) {
+      child.stderr.on("data", (data) => {
+        stderr += data.toString();
+      });
+    }
+
+    child.on("close", (code) => {
+      resolve({ ok: code === 0, stdout, stderr });
+    });
+
+    child.on("error", (err) => {
+      resolve({ ok: false, stdout: "", stderr: err?.message || "" });
+    });
+  });
+};
+
+const checkCommand = (command, args) => {
+  try {
+    execFileSync(command, args, { stdio: "ignore" });
+    return true;
+  } catch (_err) {
+    return false;
   }
 };
 
@@ -213,6 +256,52 @@ ipcMain.handle("git-clean", async () => {
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err?.message || "No se pudo limpiar Git" };
+  }
+});
+
+ipcMain.handle("check-deps", async () => {
+  const node = checkCommand("node", ["--version"]);
+  const git = checkCommand("git", ["--version"]);
+  const supabase = checkCommand("supabase", ["--version"]);
+  const winget = checkCommand("winget", ["--version"]);
+
+  return { ok: true, node, git, supabase, winget };
+});
+
+ipcMain.handle("install-dep", async (_event, name) => {
+  const target = String(name || "").trim();
+  if (!target) return { ok: false, error: "Dependencia invalida." };
+
+  if (!checkCommand("winget", ["--version"])) {
+    return { ok: false, error: "winget no esta disponible en este equipo." };
+  }
+
+  const baseArgs = ["install", "-e", "--accept-source-agreements", "--accept-package-agreements"];
+  const idMap = {
+    node: "OpenJS.NodeJS.LTS",
+    git: "Git.Git",
+    supabase: "Supabase.CLI",
+  };
+
+  const id = idMap[target];
+  if (!id) {
+    return { ok: false, error: "Dependencia no soportada." };
+  }
+
+  const result = await runCommand("winget", [...baseArgs, "--id", id]);
+  if (!result.ok) {
+    return { ok: false, error: result.stderr || result.stdout || "Error instalando." };
+  }
+
+  return { ok: true };
+});
+
+ipcMain.handle("get-project-path", async () => {
+  try {
+    const projectRoot = path.resolve(app.getAppPath(), "..");
+    return { ok: true, path: projectRoot };
+  } catch (err) {
+    return { ok: false, error: err?.message || "No se pudo leer la ruta" };
   }
 });
 

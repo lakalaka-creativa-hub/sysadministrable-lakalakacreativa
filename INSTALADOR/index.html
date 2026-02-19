@@ -11,23 +11,64 @@
       <aside class="rail">
         <div class="logo">INSTALADOR</div>
         <div class="steps">
-          <div class="step active" data-step="1">1. Correo</div>
-          <div class="step" data-step="2">2. Supabase</div>
-          <div class="step" data-step="3">3. Conexion</div>
-          <div class="step" data-step="4">4. Schema</div>
-          <div class="step" data-step="5">5. RLS</div>
-          <div class="step" data-step="6">6. Claves</div>
-          <div class="step" data-step="7">7. Vercel</div>
-          <div class="step" data-step="8">8. Final</div>
+          <div class="step active" data-step="1">1. Dependencias</div>
+          <div class="step" data-step="2">2. Correo</div>
+          <div class="step" data-step="3">3. Supabase</div>
+          <div class="step" data-step="4">4. Conexion</div>
+          <div class="step" data-step="5">5. Schema</div>
+          <div class="step" data-step="6">6. RLS</div>
+          <div class="step" data-step="7">7. Claves</div>
+          <div class="step" data-step="8">8. Vercel</div>
+          <div class="step" data-step="9">9. Final</div>
         </div>
         <div class="hint">Solo genera .env.local. No sube datos.</div>
         <div class="rail-footer">
+          <button class="btn secondary small" data-action="open-commit-modal">Comandos de commit</button>
           <button class="btn secondary small" data-action="reset">Reiniciar instalador</button>
         </div>
       </aside>
 
       <main class="panel">
         <section class="screen active" data-screen="1">
+          <h1>Dependencias</h1>
+          <p>Antes de empezar, esta computadora necesita estas herramientas.</p>
+          <div class="steps-block">
+            <h2>Requeridas</h2>
+            <div class="summary">
+              <div><strong>Node.js:</strong> <span id="dep-node">(sin revisar)</span></div>
+              <div><strong>Git:</strong> <span id="dep-git">(sin revisar)</span></div>
+              <div><strong>Supabase CLI:</strong> <span id="dep-supabase">(sin revisar)</span></div>
+              <div><strong>winget:</strong> <span id="dep-winget">(sin revisar)</span></div>
+            </div>
+            <p class="helper">Si falta algo, puedes instalarlo desde aqui.</p>
+            <div class="actions">
+              <button class="btn secondary" data-action="check-deps">Revisar</button>
+              <button class="btn primary" data-action="install-all">Instalar todo</button>
+            </div>
+          </div>
+
+          <div class="steps-block">
+            <h2>Instalar uno por uno</h2>
+            <div class="actions">
+              <button class="btn secondary" data-action="install-node">Instalar Node.js</button>
+              <button class="btn secondary" data-action="install-git">Instalar Git</button>
+              <button class="btn secondary" data-action="install-supabase">Instalar Supabase CLI</button>
+            </div>
+            <div class="actions">
+              <button class="btn secondary" data-action="open-node">Descarga Node.js</button>
+              <button class="btn secondary" data-action="open-git">Descarga Git</button>
+              <button class="btn secondary" data-action="open-supabase">Descarga Supabase CLI</button>
+            </div>
+            <div class="notice" id="dep-status"></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn secondary" data-action="next">Saltar</button>
+            <button class="btn primary" data-action="next">Continuar</button>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="2">
           <h1>Ya tienes el correo?</h1>
           <p>Usa un correo exclusivo para este negocio. No uses el de otro cliente.</p>
           <div class="form">
@@ -44,7 +85,7 @@
           </div>
         </section>
 
-        <section class="screen" data-screen="2">
+        <section class="screen" data-screen="3">
           <h1>Ya creaste Supabase?</h1>
           <p>Debes tener un proyecto nuevo para <strong><span data-business="name">este negocio</span></strong>.</p>
           <p>Si usas un proyecto de otro cliente, la app no va a funcionar bien.</p>
@@ -66,7 +107,7 @@
           </div>
         </section>
 
-        <section class="screen" data-screen="3">
+        <section class="screen" data-screen="4">
           <h1>Conexion a la base</h1>
           <p>Copia el connection string (Postgres) de Supabase y agrega la contrasena.</p>
           <p>Si aparece el error <strong>ENOTFOUND</strong> o tu red es solo IPv4, usa el metodo <strong>Session Pooler</strong> en Supabase.</p>
@@ -88,7 +129,7 @@
           </div>
         </section>
 
-        <section class="screen" data-screen="4">
+        <section class="screen" data-screen="5">
           <h1>Schema (public)</h1>
           <p>Este SQL se ejecuta manualmente en Supabase (SQL Editor). Copia y pega tal cual.</p>
           <div class="form">
@@ -107,7 +148,7 @@
           <div class="notice" id="schema-status"></div>
         </section>
 
-        <section class="screen" data-screen="5">
+        <section class="screen" data-screen="6">
           <h1>RLS y politicas</h1>
           <p>Ejecuta este SQL en el SQL Editor para activar RLS. Copia y pega tal cual.</p>
           <div class="form">
@@ -126,7 +167,7 @@
           <div class="notice" id="rls-status"></div>
         </section>
 
-        <section class="screen" data-screen="6">
+        <section class="screen" data-screen="7">
           <h1>Ingresa las claves</h1>
           <p>Copialas desde el panel de Supabase del negocio correcto.</p>
           <p>Si pones claves de otro negocio, el sistema no va a entrar.</p>
@@ -151,9 +192,69 @@
             <button class="btn primary" data-action="save">Guardar .env.local</button>
           </div>
           <div class="notice" id="save-status"></div>
+
+          <div class="steps-block">
+            <h2>Crear roles y primer usuario</h2>
+            <p>Primero crea el usuario en Supabase Auth. La contrasena la eliges ahi.</p>
+            <p class="helper">
+              Nota: la contrasena no se puede crear por SQL. Debes escribirla en Supabase Auth.
+            </p>
+            <ol>
+              <li>Supabase → Authentication → Users → Add user.</li>
+              <li>Email: admin@app.local</li>
+              <li>Contrasena: elige una segura. Si quieres usar "admin", puedes hacerlo, pero cambiala despues.</li>
+              <li>Copia el UUID del usuario creado.</li>
+              <li>En SQL Editor, pega y ejecuta este SQL (reemplaza el UUID):</li>
+            </ol>
+            <pre class="code">insert into public.roles (name, permissions)
+values
+  ('admin', '{
+    "dashboard": {"view": true},
+    "remisiones": {"view": true},
+    "cotizaciones": {"view": true},
+    "clientes": {"view": true},
+    "inventario": {"view": true},
+    "gastos": {"view": true},
+    "analisis": {"view": true},
+    "reportes": {"view": true},
+    "configuracion": {"view": true}
+  }'::jsonb),
+  ('supervisor', '{
+    "dashboard": {"view": true},
+    "remisiones": {"view": true},
+    "cotizaciones": {"view": true},
+    "clientes": {"view": true},
+    "inventario": {"view": true},
+    "gastos": {"view": true},
+    "analisis": {"view": true},
+    "reportes": {"view": true}
+  }'::jsonb),
+  ('operador', '{
+    "dashboard": {"view": true},
+    "remisiones": {"view": true},
+    "cotizaciones": {"view": true},
+    "clientes": {"view": true}
+  }'::jsonb)
+on conflict (name) do update set permissions = excluded.permissions;
+
+insert into public.app_users (username, email_internal, password_hash, role_id, auth_user_id, is_active)
+select
+  'admin',
+  'admin@app.local',
+  'supabase-auth',
+  r.id,
+  'PEGA_AQUI_EL_UUID',
+  true
+from public.roles r
+where r.name = 'admin'
+on conflict (username) do update
+set role_id = excluded.role_id,
+    auth_user_id = excluded.auth_user_id,
+    is_active = true;</pre>
+          </div>
         </section>
 
-        <section class="screen" data-screen="7">
+        <section class="screen" data-screen="8">
           <h1>Vercel</h1>
           <p>Vamos paso a paso. Aqui subimos el proyecto a GitHub y luego lo conectamos a Vercel.</p>
           <p>Usa las cuentas de GitHub y Vercel del negocio correcto.</p>
@@ -191,11 +292,16 @@
                 En GitHub: Note (nombre) cualquiera, Expiration (fecha) cualquiera,
                 y marca el permiso <strong>repo</strong>. Luego genera el token y copialo aqui.
               </p>
+              <p class="helper">
+                Si sale error 403 (Permission denied), estas usando la cuenta equivocada o no tienes acceso al repo.
+                Entra con la cuenta correcta o pide que te agreguen como colaborador del repositorio/organizacion.
+              </p>
             </div>
             <div class="actions">
               <button class="btn secondary" data-action="open-github-token">Crear token</button>
               <button class="btn primary" data-action="git-push">Subir a GitHub</button>
               <button class="btn secondary" data-action="git-clean">Limpiar Git y reintentar</button>
+              <button class="btn secondary" data-action="help-403">Ayuda 403</button>
             </div>
             <div class="notice" id="git-status"></div>
           </div>
@@ -228,6 +334,19 @@ git push -u origin main</pre>
           <div class="steps-block">
             <h2>4) Agregar variables de entorno</h2>
             <p>Las variables son solo campos de texto que Vercel guarda para tu app.</p>
+            <p class="helper">
+              Aunque ya las hayas puesto antes, Vercel las pide por cada proyecto nuevo.
+            </p>
+            <p class="helper">
+              Recordatorio: estas son las que ya capturaste en el paso 6.
+            </p>
+            <p class="helper">
+              Si usas Import .env en Vercel, selecciona el archivo <strong>.env.local</strong> del proyecto.
+            </p>
+            <div class="summary">
+              <div><strong>NEXT_PUBLIC_SUPABASE_URL:</strong> <span id="summary-sb-url">(pendiente)</span></div>
+              <div><strong>NEXT_PUBLIC_SUPABASE_ANON_KEY:</strong> <span id="summary-sb-anon">(pendiente)</span></div>
+            </div>
             <ol>
               <li>Agrega: NEXT_PUBLIC_SUPABASE_URL</li>
               <li>Agrega: NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
@@ -250,7 +369,7 @@ git push -u origin main</pre>
           </div>
         </section>
 
-        <section class="screen" data-screen="8">
+        <section class="screen" data-screen="9">
           <h1>Listo</h1>
           <p>Instalacion completada.</p>
           <div class="actions">
@@ -260,6 +379,20 @@ git push -u origin main</pre>
       </main>
     </div>
 
+    <div class="modal" id="commit-modal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="commit-title">
+        <div class="modal-header">
+          <h2 id="commit-title">Comandos para hacer commit</h2>
+          <button class="btn secondary small" data-action="close-commit-modal">Cerrar</button>
+        </div>
+        <p class="helper">Usa estos comandos en PowerShell dentro de la carpeta del proyecto.</p>
+        <pre class="code"><span id="commit-cd">cd "C:\\ruta\\del\\proyecto"</span>
+      git status
+      git add .
+      git commit -m "tu mensaje"
+      git push</pre>
+      </div>
+    </div>
     <script src="renderer.js"></script>
   </body>
 </html>

@@ -8,6 +8,17 @@ const businessNameInput = document.getElementById("business-name");
 const businessNameTargets = Array.from(document.querySelectorAll("[data-business='name']"));
 const gitOwnerInput = document.getElementById("git-owner");
 const gitRepoInput = document.getElementById("git-repo");
+const supaUrlInput = document.getElementById("sb-url");
+const supaAnonInput = document.getElementById("sb-anon");
+const summarySupaUrl = document.getElementById("summary-sb-url");
+const summarySupaAnon = document.getElementById("summary-sb-anon");
+const depNode = document.getElementById("dep-node");
+const depGit = document.getElementById("dep-git");
+const depSupabase = document.getElementById("dep-supabase");
+const depWinget = document.getElementById("dep-winget");
+const depStatus = document.getElementById("dep-status");
+const commitModal = document.getElementById("commit-modal");
+const commitCd = document.getElementById("commit-cd");
 
 const maxStep = steps.length;
 
@@ -46,6 +57,62 @@ const setBusinessName = (value) => {
   businessNameTargets.forEach((el) => {
     el.textContent = name;
   });
+};
+
+const maskValue = (value) => {
+  if (!value) return "(pendiente)";
+  const text = String(value);
+  if (text.length <= 10) return text;
+  return `${text.slice(0, 6)}...${text.slice(-4)}`;
+};
+
+const setSupabaseSummary = (url, anon) => {
+  if (summarySupaUrl) summarySupaUrl.textContent = url ? url : "(pendiente)";
+  if (summarySupaAnon) summarySupaAnon.textContent = maskValue(anon);
+};
+
+const setDepStatus = (element, ok) => {
+  if (!element) return;
+  element.textContent = ok ? "OK" : "Falta";
+  element.style.color = ok ? "#9fe870" : "#f78da7";
+};
+
+const refreshDeps = async () => {
+  const api = getInstaller();
+  if (!api?.checkDeps) return;
+  const result = await api.checkDeps();
+  if (!result.ok) return;
+  setDepStatus(depNode, result.node);
+  setDepStatus(depGit, result.git);
+  setDepStatus(depSupabase, result.supabase);
+  setDepStatus(depWinget, result.winget);
+};
+
+const installDep = async (name, label) => {
+  const api = getInstaller();
+  if (!api?.installDep) return;
+  setStatus(depStatus, `Instalando ${label}...`, true);
+  const result = await api.installDep(name);
+  if (result.ok) {
+    setStatus(depStatus, `${label} instalado.`, true);
+    await refreshDeps();
+  } else {
+    setStatus(depStatus, result.error || `Error instalando ${label}`, false);
+  }
+};
+
+const toggleCommitModal = (show) => {
+  if (!commitModal) return;
+  commitModal.classList.toggle("show", show);
+  commitModal.setAttribute("aria-hidden", show ? "false" : "true");
+};
+
+const fillCommitPath = async () => {
+  const api = getInstaller();
+  if (!api?.getProjectPath || !commitCd) return;
+  const result = await api.getProjectPath();
+  if (!result.ok || !result.path) return;
+  commitCd.textContent = `cd "${result.path}"`;
 };
 
 const saveValue = (key, value) => {
@@ -178,6 +245,77 @@ const handleAction = async (action) => {
     return;
   }
 
+  if (action === "open-commit-modal") {
+    await fillCommitPath();
+    toggleCommitModal(true);
+    return;
+  }
+
+  if (action === "close-commit-modal") {
+    toggleCommitModal(false);
+    return;
+  }
+
+  if (action === "check-deps") {
+    await refreshDeps();
+    setStatus(depStatus, "Revision completada.", true);
+    return;
+  }
+
+  if (action === "install-node") {
+    await installDep("node", "Node.js");
+    return;
+  }
+
+  if (action === "install-git") {
+    await installDep("git", "Git");
+    return;
+  }
+
+  if (action === "install-supabase") {
+    await installDep("supabase", "Supabase CLI");
+    return;
+  }
+
+  if (action === "install-all") {
+    await installDep("node", "Node.js");
+    await installDep("git", "Git");
+    await installDep("supabase", "Supabase CLI");
+    return;
+  }
+
+  if (action === "open-node") {
+    const api = getInstaller();
+    if (!api?.openUrl) return;
+    await api.openUrl("https://nodejs.org/en/download");
+    return;
+  }
+
+  if (action === "open-git") {
+    const api = getInstaller();
+    if (!api?.openUrl) return;
+    await api.openUrl("https://git-scm.com/downloads");
+    return;
+  }
+
+  if (action === "open-supabase") {
+    const api = getInstaller();
+    if (!api?.openUrl) return;
+    await api.openUrl("https://supabase.com/docs/guides/cli/getting-started");
+    return;
+  }
+
+  if (action === "help-403") {
+    await openInfo(
+      "Error 403 significa que Git esta usando otra cuenta.\n\n" +
+        "Solucion rapida:\n" +
+        "1) Abre Panel de control > Administrador de credenciales.\n" +
+        "2) En Credenciales de Windows, elimina las de github.com.\n" +
+        "3) Vuelve a intentar el push y pega el token correcto."
+    );
+    return;
+  }
+
   if (action === "reset") {
     const confirmReset = window.confirm("Esto limpiara los campos del instalador. Quieres continuar?");
     if (!confirmReset) return;
@@ -207,7 +345,7 @@ const handleAction = async (action) => {
     const result = await window.installer.writeEnv({ url, anonKey, serviceKey });
     if (result.ok) {
       setStatus(statusEl, "Listo. .env.local guardado en el proyecto.");
-      setTimeout(() => goTo(7), 800);
+      setTimeout(() => goTo(8), 800);
     } else {
       setStatus(statusEl, result.error || "Error guardando .env.local", false);
     }
@@ -287,6 +425,8 @@ window.addEventListener("click", (event) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   goTo(1);
+  refreshDeps();
+  fillCommitPath();
   const savedBusiness = loadValue("businessName");
   if (businessNameInput) businessNameInput.value = savedBusiness;
   setBusinessName(savedBusiness);
@@ -296,8 +436,19 @@ window.addEventListener("DOMContentLoaded", () => {
   if (gitOwnerInput) gitOwnerInput.value = savedOwner;
   if (gitRepoInput) gitRepoInput.value = savedRepo;
 
+  const savedSupaUrl = loadValue("supaUrl");
+  const savedSupaAnon = loadValue("supaAnon");
+  if (supaUrlInput) supaUrlInput.value = savedSupaUrl;
+  if (supaAnonInput) supaAnonInput.value = savedSupaAnon;
+  setSupabaseSummary(savedSupaUrl, savedSupaAnon);
+
   loadSqlInto("schema_public.sql", "sb-schema", schemaStatusEl, "schema_public.sql");
   loadSqlInto("rls_policies.sql", "sb-rls", rlsStatusEl, "rls_policies.sql");
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  toggleCommitModal(false);
 });
 
 document.addEventListener("input", (event) => {
@@ -316,5 +467,15 @@ document.addEventListener("input", (event) => {
 
   if (target.id === "git-repo") {
     saveValue("gitRepo", target.value);
+  }
+
+  if (target.id === "sb-url") {
+    saveValue("supaUrl", target.value);
+    setSupabaseSummary(target.value, supaAnonInput ? supaAnonInput.value : "");
+  }
+
+  if (target.id === "sb-anon") {
+    saveValue("supaAnon", target.value);
+    setSupabaseSummary(supaUrlInput ? supaUrlInput.value : "", target.value);
   }
 });

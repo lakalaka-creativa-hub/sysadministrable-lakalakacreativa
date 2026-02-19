@@ -10,6 +10,12 @@ export default function LoginPage() {
   const router = useRouter();
   const [logoUrl, setLogoUrl] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const defaultSupport = {
+    phone: "812 035 8808",
+    facebook: "/lakalakacreativa",
+  };
+  const [supportPhone, setSupportPhone] = useState(defaultSupport.phone);
+  const [supportFacebook, setSupportFacebook] = useState(defaultSupport.facebook);
   const [themeVars, setThemeVars] = useState(() => {
     if (typeof window === "undefined") {
       return {
@@ -43,12 +49,16 @@ export default function LoginPage() {
     const loadBranding = async () => {
       const { data, error } = await supabase
         .from("branding_settings")
-        .select("logo_url, business_name, app_bg, app_card, app_primary, app_secondary, app_text")
+        .select(
+          "logo_url, business_name, app_bg, app_card, app_primary, app_secondary, app_text, contact_phone"
+        )
         .eq("id", "default")
         .maybeSingle();
       if (!error && data) {
         setLogoUrl(data.logo_url || "");
         setBusinessName(data.business_name || "");
+        setSupportPhone(data.contact_phone || defaultSupport.phone);
+        setSupportFacebook(defaultSupport.facebook);
         setThemeVars({
           appBg: data.app_bg || "#f7f7f8",
           appCard: data.app_card || "#ffffff",
@@ -217,7 +227,14 @@ export default function LoginPage() {
             <span>Soporte</span>
           </div>
           <div className="mt-2">
-            Configura tus datos de contacto en Configuracion.
+            <div className="font-medium">Sistemas Lakalaka Creativa</div>
+            <div>Cambios o requisitos personales</div>
+            <div className="mt-1">
+              WhatsApp: <a className="underline" href={`https://wa.me/52${supportPhone.replace(/\s+/g, "")}`} target="_blank" rel="noreferrer">{supportPhone}</a>
+            </div>
+            <div>
+              Facebook: <a className="underline" href={`https://facebook.com${supportFacebook}`} target="_blank" rel="noreferrer">{supportFacebook}</a>
+            </div>
           </div>
         </div>
       </div>
